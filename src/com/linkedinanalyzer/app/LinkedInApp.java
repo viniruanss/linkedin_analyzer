@@ -24,6 +24,9 @@ public class LinkedInApp {
         
         // 5. Testar validação de construtor
         testarValidacaoConstrutor();
+
+        // 6. Testar o menorCaminho (Task 4)
+        testarMenorCaminho(redeSocial);
     }
     
     /**
@@ -117,5 +120,46 @@ public class LinkedInApp {
         }
         
         System.out.println("\n✅ Testes de validação concluídos!");
+    }
+
+    /**
+     * Testa o método menorCaminho (Rota e Custo de Maior Afinidade)
+     */
+    private static void testarMenorCaminho(Grafo grafo) {
+        System.out.println("\n=== TASK 4: TESTE DE ROTA E CUSTO DE MAIOR AFINIDADE ===\n");
+
+        // Caso 1: caminho direto na rede principal (Ana -> Bruno)
+        testarRota(grafo, "Ana", "Bruno");
+
+        // Caso 2: caminho com múltiplos saltos (Ana -> Fernanda)
+        testarRota(grafo, "Ana", "Fernanda");
+
+        // Caso 3: mesmo vértice como origem e destino
+        testarRota(grafo, "Ana", "Ana");
+
+        // Caso 4: perfis inalcançáveis (grupos isolados diferentes)
+        testarRota(grafo, "Ana", "Gabriel");
+
+        // Caso 5: perfil que não existe no grafo
+        testarRota(grafo, "Ana", "Maria");
+
+        System.out.println("\n✅ Task 4 - Rota e Custo de Maior Afinidade testada!");
+    }
+
+    /**
+     * Auxiliar: executa e exibe o resultado de uma busca de menor caminho
+     */
+    private static void testarRota(Grafo grafo, String origem, String destino) {
+        System.out.println("--- Rota: " + origem + " -> " + destino + " ---");
+
+        ResultadoCaminho resultado = grafo.menorCaminho(origem, destino);
+
+        if (resultado.getCusto() == -1) {
+            System.out.println("   ❌ Inalcançável (custo: -1, caminho: " + resultado.getCaminho() + ")");
+        } else {
+            System.out.println("   ✅ Caminho: " + resultado.getCaminho());
+            System.out.println("   ✅ Custo total: " + resultado.getCusto());
+        }
+        System.out.println();
     }
 }

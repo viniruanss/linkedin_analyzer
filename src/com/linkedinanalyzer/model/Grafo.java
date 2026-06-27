@@ -1,3 +1,4 @@
+import javax.print.attribute.HashPrintJobAttributeSet;
 import java.util.*;
 
 /**
@@ -81,30 +82,65 @@ public class Grafo {
     public int getQuantidadeVertices() {
         return vertices.size();
     }
-    
-    /**
-     * Classe interna para representar uma aresta
-     */
-    public static class Aresta {
-        private String destino;
-        private int peso;
-        
-        public Aresta(String destino, int peso) {
-            this.destino = destino;
-            this.peso = peso;
+
+    public void inicializarDjkstra(Map<String, Integer> distancia, String origem) {
+
+        for (String vertice: vertices){
+            distancia.put(vertice, Integer.MAX_VALUE);
         }
-        
-        public String getDestino() {
-            return destino;
+        distancia.put(origem, 0);
+    }
+
+    public void relaxarDjkstra(String atual, Aresta aresta, Map<String, Integer> distancia,
+                               Map<String, String> pai, PriorityQueue<String> fila) {
+        String vizinho = aresta.getDestino();
+        int novaDistancia = distancia.get(atual) + aresta.getPeso();
+
+        if (novaDistancia < distancia.get(vizinho)){
+            distancia.put(vizinho, novaDistancia);
+            pai.put(vizinho, atual);
+            fila.add(vizinho);
         }
-        
-        public int getPeso() {
-            return peso;
+    }
+
+    public ResultadoCaminho menorCaminho(String origem, String destino) {
+        if (!contemVertice(origem) || !contemVertice(destino)) return new ResultadoCaminho();
+
+        Map<String, Integer> distancia = new HashMap<>();
+        Map<String, String> pai = new HashMap<>();
+        Set<String> visitados = new HashSet<>();
+
+        PriorityQueue<String> fila = new PriorityQueue<>(
+                Comparator.comparingInt(distancia::get)
+        );
+
+        inicializarDjkstra(distancia, origem);
+
+        fila.add(origem);
+
+        while (!fila.isEmpty()){
+            String atual = fila.poll();
+
+            if (visitados.contains(atual)) continue;
+            visitados.add(atual);
+
+            if (atual.equals(destino)) break;
+
+            for (Aresta aresta: getVizinhos(atual)){
+                relaxarDjkstra(atual, aresta, distancia, pai, fila);
+            }
         }
-        
-        @Override
-        public String toString() {
-            return destino + " (peso: " + peso + ")";
+
+        if (distancia.get(destino) == Integer.MAX_VALUE) return new ResultadoCaminho();
+
+        List<String> caminho = new ArrayList<>();
+        String passo = destino;
+
+        while (passo != null){
+            // método addFirst usado no java 21
+            caminho.addFirst(passo);
+            passo = pai.get(passo);
         }
+        return new ResultadoCaminho(caminho, distancia.get(destino));
     }
 }

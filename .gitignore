@@ -1,6 +1,7 @@
 # Arquivos compilados
 bin/
 target/
+out/
 *.class
 
 # Arquivos da IDE
