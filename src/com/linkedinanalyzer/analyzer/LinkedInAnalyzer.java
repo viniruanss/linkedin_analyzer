@@ -1,5 +1,4 @@
 import java.util.*;
-
 /**
  * Classe responsável por análises e recomendações na rede social
  * LinkedInAnalyzer - Task 1: Construtor da Análise
@@ -54,6 +53,49 @@ public class LinkedInAnalyzer {
      */
     public Set<String> getAllPerfis() {
         return redeSocial.getVertices();
+    }
+
+    /**
+     * SUGESTÃO DE CONEXÕES (Amigos de 2º grau)
+     *
+     * @param nome Nome da pessoa para quem vamos sugerir conexões
+     * @return Lista de sugestões ordenada por quantidade de amigos em comum (decrescente)
+     */
+    public List<sugereConexao> sugerirConexoes(String nome) {
+        //se perfil nao existir: segue o mesmo padrão do menorCaminho (retorna "vazio", não lança exceção)
+        if (!perfilExiste(nome)) {
+            return new ArrayList<>();
+        }
+
+        //esse é o 1º grau: contatos diretos de "nome"
+        Set<String> primeiroGrau = new HashSet<>();
+        for (Aresta aresta : redeSocial.getVizinhos(nome)) {
+            primeiroGrau.add(aresta.getDestino());
+        }
+
+        //já esse é o 2º grau: vizinhos dos vizinhos, onde contamos quantas vezes cada um aparece
+        // (cada aparição = um amigo em comum diferente levando até ele)
+        Map<String, Integer> contagem = new HashMap<>();
+        for (String amigoDireto : primeiroGrau) {
+            for (Aresta aresta : redeSocial.getVizinhos(amigoDireto)) {
+                String candidato = aresta.getDestino();
+                if (candidato.equals(nome)) continue;          //para nao sugerir a própria pessoa
+                if (primeiroGrau.contains(candidato)) continue; //para nao sugerir quem já é 1º grau
+
+                contagem.merge(candidato, 1, Integer::sum);
+            }
+        }
+
+        //monta a lista de sugestões
+        List<sugereConexao> sugestoes = new ArrayList<>();
+        for (Map.Entry<String, Integer> entrada : contagem.entrySet()) {
+            sugestoes.add(new sugereConexao(entrada.getKey(), entrada.getValue()));
+        }
+
+        //ordena por amigos em comum, decrescente
+        sugestoes.sort((s1, s2) -> s2.getAmigosEmComum() - s1.getAmigosEmComum());
+
+        return sugestoes;
     }
     
     /**
