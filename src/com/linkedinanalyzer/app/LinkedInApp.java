@@ -27,7 +27,14 @@ public class LinkedInApp {
 
         // 6. Testar o menorCaminho (Task 4)
         testarMenorCaminho(redeSocial);
+
+        // 7. Testar as sugestões de conexões (Task 2)
+        testarSugestaoConexoes(analyzer);
+
+        // 8. Testar o Grau de Separação (Task 3)
+        testarGrauSeparacao(analyzer);
     }
+
     
     /**
      * Cria a rede social de exemplo conforme o cenário sugerido
@@ -161,5 +168,69 @@ public class LinkedInApp {
             System.out.println("   ✅ Custo total: " + resultado.getCusto());
         }
         System.out.println();
+    }
+
+    /**
+     * Testa o método sugerirConexoes (Task 2)
+     */
+    private static void testarSugestaoConexoes(LinkedInAnalyzer analyzer) {
+        System.out.println("\n=== TASK 2: TESTE DE SUGESTÃO DE CONEXÕES ===\n");
+        
+        String[] perfis = {"Ana", "Eduardo", "Fernanda", "Gabriel", "Maria"};
+        for (String perfil : perfis) {
+            System.out.println("--- Sugestões para " + perfil + " ---");
+            java.util.List<sugereConexao> sugestoes = analyzer.sugerirConexoes(perfil);
+            if (sugestoes.isEmpty()) {
+                System.out.println("   Nenhuma sugestão encontrada.");
+            } else {
+                for (sugereConexao s : sugestoes) {
+                    System.out.println("   -> " + s);
+                }
+            }
+            System.out.println();
+        }
+        
+        System.out.println("Task 2 - Sugestão de Conexões concluída!");
+    }
+
+    /**
+     * Testa o método obterGrauSeparacao (Task 3)
+     */
+    private static void testarGrauSeparacao(LinkedInAnalyzer analyzer) {
+        System.out.println("\n=== TASK 3: TESTE DE GRAU DE SEPARAÇÃO ===\n");
+
+        // Caso 1: conexões diretas (1º grau) -> Ana <-> Bruno
+        testarPassos(analyzer, "Ana", "Bruno");
+
+        // Caso 2: amigo de amigo (2º grau) -> Ana <-> Eduardo (Ana -> Bruno/Carlos -> Eduardo)
+        testarPassos(analyzer, "Ana", "Eduardo");
+
+        // Caso 3: amigo de amigo de amigo (3º grau) -> Ana <-> Fernanda (Ana -> Daniela -> Fernanda [2 passos])
+        // Nota: no menor caminho ponderado (Dijkstra) de Ana para Fernanda, o caminho é 3 passos,
+        // mas em passos puros (unweighted/BFS), o menor é 2 passos (Ana -> Daniela -> Fernanda).
+        testarPassos(analyzer, "Ana", "Fernanda");
+
+        // Caso 4: mesmo perfil (grau 0) -> Ana <-> Ana
+        testarPassos(analyzer, "Ana", "Ana");
+
+        // Caso 5: perfis totalmente isolados -> Ana <-> Gabriel
+        testarPassos(analyzer, "Ana", "Gabriel");
+
+        // Caso 6: perfis isolados em outro grupo -> Gabriel <-> Hugo
+        testarPassos(analyzer, "Gabriel", "Hugo");
+
+        // Caso 7: perfil que não existe
+        testarPassos(analyzer, "Ana", "Maria");
+
+        System.out.println("\nTask 3 - Grau de Separação concluído!");
+    }
+
+    /**
+     * Auxiliar: executa e exibe o resultado do grau de separação
+     */
+    private static void testarPassos(LinkedInAnalyzer analyzer, String origem, String destino) {
+        int grau = analyzer.obterGrauSeparacao(origem, destino);
+        System.out.println("Grau de separação de " + origem + " a " + destino + ": " + 
+                           (grau == -1 ? "Sem conexão (-1)" : grau + " passo(s)"));
     }
 }

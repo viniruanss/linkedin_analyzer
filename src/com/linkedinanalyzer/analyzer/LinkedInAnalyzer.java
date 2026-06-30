@@ -97,6 +97,55 @@ public class LinkedInAnalyzer {
 
         return sugestoes;
     }
+
+    /**
+     * GRAU DE SEPARAÇÃO (Quantos "passos" de distância?)
+     * 
+     * @param origem Nome do perfil de origem
+     * @param destino Nome do perfil de destino
+     * @return O número de passos (arestas) entre origem e destino, ou -1 se não houver conexão ou perfil não existir
+     */
+    public int obterGrauSeparacao(String origem, String destino) {
+        // Se algum dos perfis não existe na rede social, retorna -1
+        if (!perfilExiste(origem) || !perfilExiste(destino)) {
+            return -1;
+        }
+
+        // Se origem e destino são o mesmo perfil, o grau é 0
+        if (origem.equals(destino)) {
+            return 0;
+        }
+
+        // Fila para o BFS (Breadth-First Search) para encontrar o menor caminho em número de passos (não ponderado)
+        Queue<String> fila = new LinkedList<>();
+        Map<String, Integer> distancias = new HashMap<>();
+
+        // Inicializa a busca a partir da origem
+        fila.add(origem);
+        distancias.put(origem, 0);
+
+        while (!fila.isEmpty()) {
+            String atual = fila.poll();
+            int distAtual = distancias.get(atual);
+
+            // Se encontramos o destino, retornamos o grau de separação
+            if (atual.equals(destino)) {
+                return distAtual;
+            }
+
+            // Explora todas as conexões diretas (vizinhos) do perfil atual
+            for (Aresta aresta : redeSocial.getVizinhos(atual)) {
+                String vizinho = aresta.getDestino();
+                if (!distancias.containsKey(vizinho)) {
+                    distancias.put(vizinho, distAtual + 1);
+                    fila.add(vizinho);
+                }
+            }
+        }
+
+        // Retorna -1 se os dois perfis forem totalmente isolados (sem conexão)
+        return -1;
+    }
     
     /**
      * Sobrescrita do método toString para facilitar a visualização
