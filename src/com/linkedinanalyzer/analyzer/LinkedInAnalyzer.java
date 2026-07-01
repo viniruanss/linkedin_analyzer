@@ -146,6 +146,52 @@ public class LinkedInAnalyzer {
         // Retorna -1 se os dois perfis forem totalmente isolados (sem conexão)
         return -1;
     }
+
+    /**
+     * MAPEAR GRUPOS ISOLADOS (Sub-redes / Componentes Conexos)
+     *
+     * O que faz: Varre toda a rede social e agrupa os perfis que estão
+     * conectados entre si (direta ou indiretamente), mas isolados de outros grupos.
+     *
+     * @return Lista de conjuntos, onde cada conjunto representa um grupo de perfis
+     *         que formam uma sub-rede isolada.
+     */
+    public List<Set<String>> mapearGruposIsolados() {
+        Set<String> visitados = new HashSet<>();
+        List<Set<String>> componentes = new ArrayList<>();
+
+        // Percorre todos os perfis da rede social
+        for (String perfil : getAllPerfis()) {
+            // Se esse perfil já foi visitado, ele já pertence a um grupo conhecido
+            if (visitados.contains(perfil)) continue;
+
+            // Novo grupo: faz um BFS a partir desse perfil "semente"
+            Set<String> grupoAtual = new HashSet<>();
+            Queue<String> fila = new LinkedList<>();
+
+            fila.add(perfil);
+            visitados.add(perfil);
+
+            while (!fila.isEmpty()) {
+                String atual = fila.poll();
+                grupoAtual.add(atual);
+
+                // Explora todos os vizinhos diretos do perfil atual
+                for (Aresta aresta : redeSocial.getVizinhos(atual)) {
+                    String vizinho = aresta.getDestino();
+                    if (!visitados.contains(vizinho)) {
+                        visitados.add(vizinho);
+                        fila.add(vizinho);
+                    }
+                }
+            }
+
+            // Grupo completo: adiciona na lista de componentes
+            componentes.add(grupoAtual);
+        }
+
+        return componentes;
+    }
     
     /**
      * Sobrescrita do método toString para facilitar a visualização

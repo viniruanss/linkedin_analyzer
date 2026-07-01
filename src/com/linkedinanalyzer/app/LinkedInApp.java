@@ -33,6 +33,9 @@ public class LinkedInApp {
 
         // 8. Testar o Grau de Separação (Task 3)
         testarGrauSeparacao(analyzer);
+
+        // 9. Testar o Mapeamento de Grupos Isolados (Task 5)
+        testarMapearGruposIsolados(analyzer);
     }
 
     
@@ -232,5 +235,25 @@ public class LinkedInApp {
         int grau = analyzer.obterGrauSeparacao(origem, destino);
         System.out.println("Grau de separação de " + origem + " a " + destino + ": " + 
                            (grau == -1 ? "Sem conexão (-1)" : grau + " passo(s)"));
+    }
+
+    /**
+     * Testa o método mapearGruposIsolados (Task 5)
+     */
+    private static void testarMapearGruposIsolados(LinkedInAnalyzer analyzer) {
+        System.out.println("\n=== TASK 5: TESTE DE MAPEAMENTO DE GRUPOS ISOLADOS ===\n");
+
+        java.util.List<java.util.Set<String>> grupos = analyzer.mapearGruposIsolados();
+
+        System.out.println("Total de grupos (componentes conexos) encontrados: " + grupos.size());
+        System.out.println();
+
+        int i = 1;
+        for (java.util.Set<String> grupo : grupos) {
+            System.out.println("Grupo " + i + " (" + grupo.size() + " perfis): " + grupo);
+            i++;
+        }
+
+        System.out.println("\nTask 5 - Mapeamento de Grupos Isolados concluído!");
     }
 }
